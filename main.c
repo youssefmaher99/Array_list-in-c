@@ -97,6 +97,7 @@ int main()
     val = 7;
     push(&myArr, &val);
     printArray(myArr);
+    printf("hello world\n");
 }
 // implement pop
 
