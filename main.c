@@ -154,18 +154,17 @@ void pop(Array_list *arr)
     }
 }
 
+// size_t find(Array_list *arr, size_t value)
+// {
+
+// }
+
 int main()
 {
     Array_list *myArr = createArray("char", 5);
 
     char val = 'A';
     push(myArr, &val);
-
-    val = 'B';
-    push(myArr, &val);
-    val = 'C';
-    push(myArr, &val);
-
     printArray(myArr);
     // free(myArr);
 }
@@ -173,5 +172,6 @@ int main()
 // Supported types (int long char)
 
 // Unfinished
+// support char*
 // implement shift (remove head)
 // implement unshift (add to head)
