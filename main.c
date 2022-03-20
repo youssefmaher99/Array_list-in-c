@@ -27,12 +27,18 @@ char parseSizeBasedOnType(char *arrayType)
     {
         return 1;
     }
+
+    if (strcmp(arrayType, "char*") == 0)
+    {
+        return 8;
+    }
+
     return 0;
 }
 
 void resizeArray(Array_list **arr)
 {
-    void *new_cu_array = (void *)calloc((*arr)->arraySize + 6, parseSizeBasedOnType((*arr)->arrayType));
+    void *new_cu_array = (void *)calloc((*arr)->arraySize * 2, parseSizeBasedOnType((*arr)->arrayType));
 
     if (strcmp((*arr)->arrayType, "int") == 0)
     {
@@ -58,6 +64,15 @@ void resizeArray(Array_list **arr)
         {
             // *((int *)new_cu_array + i) = *((int *)(*arr)->address + i);
             ((char *)new_cu_array)[i] = ((char *)(*arr)->address)[i];
+        }
+    }
+
+    if (strcmp((*arr)->arrayType, "char*") == 0)
+    {
+        for (size_t i = 0; i < (*arr)->arrayLen; i++)
+        {
+            // *((int *)new_cu_array + i) = *((int *)(*arr)->address + i);
+            ((char **)new_cu_array)[i] = ((char **)(*arr)->address)[i];
         }
     }
 
@@ -89,7 +104,7 @@ void push(Array_list *arr, void *data)
         // return a bigger array
         // create new Cu_array with bigger size and copy all data to it
         resizeArray(&arr);
-        arr->arraySize = arr->arraySize + 6;
+        arr->arraySize = arr->arraySize * 2;
     }
 
     if (strcmp(arr->arrayType, "int") == 0)
@@ -103,6 +118,10 @@ void push(Array_list *arr, void *data)
     if (strcmp(arr->arrayType, "char") == 0)
     {
         *((char *)arr->address + arr->arrayLen) = *(char *)data;
+    }
+    if (strcmp(arr->arrayType, "char*") == 0)
+    {
+        *((char **)arr->address + arr->arrayLen) = *(char **)data;
     }
     arr->arrayLen = arr->arrayLen + 1;
 }
@@ -135,6 +154,15 @@ void printArray(Array_list *arr)
         }
         return;
     }
+
+    if (strcmp(arr->arrayType, "char*") == 0)
+    {
+        for (size_t i = 0; i < arr->arrayLen; i++)
+        {
+            printf("%s\n", ((char **)arr->address)[i]);
+        }
+        return;
+    }
 }
 
 void pop(Array_list *arr)
@@ -154,24 +182,18 @@ void pop(Array_list *arr)
     }
 }
 
-// size_t find(Array_list *arr, size_t value)
-// {
-
-// }
-
 int main()
 {
-    Array_list *myArr = createArray("char", 5);
+    Array_list *myArr = createArray("char*", 5);
 
-    char val = 'A';
+    char* val = "hello world";
+    push(myArr, &val);
+    val = "test test";
+    push(myArr, &val);
+    val = "abc efg h";
     push(myArr, &val);
     printArray(myArr);
     // free(myArr);
 }
 
-// Supported types (int long char)
-
-// Unfinished
-// support char*
-// implement shift (remove head)
-// implement unshift (add to head)
+// Supported types (int long char char*)
