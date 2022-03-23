@@ -330,7 +330,3 @@ int main()
     push(myArr, &val);
     printArray(myArr);
 }
-
-
-
-// Supported types (int long char char*)
