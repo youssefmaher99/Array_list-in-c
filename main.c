@@ -321,12 +321,14 @@ void clear(Array_list *arr)
 int main()
 {
     Array_list *myArr = createArray("char*", 5);
-
     char *val = "hello world";
+
     push(myArr, &val);
     val = "test test";
+
     push(myArr, &val);
     val = "abc efg h";
+    
     push(myArr, &val);
     printArray(myArr);
 }

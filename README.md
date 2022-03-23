@@ -2,13 +2,13 @@
 
 Simple Array_list implementation in C.<br/>
 
-- Supported types (long, int, char, char\*)<br/>
+- Supported types (long (unsigned long long), int, char, char\*)<br/>
 
 - Supported operations :
 
 * push
 * pop
 * clear
-* print array
+* print
 * get element by index
 * get index of value
