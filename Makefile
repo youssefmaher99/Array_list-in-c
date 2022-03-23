@@ -1,4 +1,4 @@
 CFLAGS=-Wall -Wextra -ggdb
 
 vec: main.c
-	$(CC) $(CFLAGS) -o main.c main
+	$(CC) $(CFLAGS) -o main.c main -lm
