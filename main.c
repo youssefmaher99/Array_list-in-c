@@ -102,7 +102,7 @@ void push(Array_list *arr, void *data)
     if (arr->arrayLen == arr->arraySize)
     {
         // return a bigger array
-        // create new Cu_array with bigger size and copy all data to it
+        // create new Array_list with bigger size and copy all data to it
         resizeArray(&arr);
         arr->arraySize = arr->arraySize * 2;
     }
@@ -130,6 +130,11 @@ void printArray(Array_list *arr)
 {
     if (strcmp(arr->arrayType, "int") == 0)
     {
+        if (arr->arrayLen == 0)
+        {
+            printf("{}\n");
+            return;
+        }
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%d\n", ((int *)arr->address)[i]);
@@ -139,6 +144,11 @@ void printArray(Array_list *arr)
 
     if (strcmp(arr->arrayType, "long") == 0)
     {
+        if (arr->arrayLen == 0)
+        {
+            printf("{}\n");
+            return;
+        }
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%llu\n", ((unsigned long long *)arr->address)[i]);
@@ -148,6 +158,11 @@ void printArray(Array_list *arr)
 
     if (strcmp(arr->arrayType, "char") == 0)
     {
+        if (arr->arrayLen == 0)
+        {
+            printf("{}\n");
+            return;
+        }
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%c\n", ((char *)arr->address)[i]);
@@ -157,6 +172,11 @@ void printArray(Array_list *arr)
 
     if (strcmp(arr->arrayType, "char*") == 0)
     {
+        if (arr->arrayLen == 0)
+        {
+            printf("{}\n");
+            return;
+        }
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%s\n", ((char **)arr->address)[i]);
@@ -182,6 +202,122 @@ void pop(Array_list *arr)
     }
 }
 
+ptrdiff_t getIndexOf(Array_list *arr, size_t val)
+{
+
+    if (strcmp(arr->arrayType, "char*") == 0)
+    {
+        for (int i = 0; i < arr->arrayLen; i++)
+        {
+            if (strcmp(((char **)arr->address)[i], val) == 0)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    if (strcmp(arr->arrayType, "long") == 0)
+    {
+        for (int i = 0; i < arr->arrayLen; i++)
+        {
+            if (((unsigned long long *)arr->address)[i] == val)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    if (strcmp(arr->arrayType, "int") == 0)
+    {
+        for (int i = 0; i < arr->arrayLen; i++)
+        {
+            if (((int *)arr->address)[i] == val)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    if (strcmp(arr->arrayType, "char") == 0)
+    {
+        for (int i = 0; i < arr->arrayLen; i++)
+        {
+            if (strcmp(((char *)arr->address)[i], val) == 0)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    return -1;
+}
+
+ptrdiff_t getElementByIndex(Array_list *arr, ptrdiff_t index)
+{
+    if (index == -1)
+    {
+        fprintf(stderr, "Invalid index\n");
+        exit(1);
+    }
+
+    if (strcmp(arr->arrayType, "char*") == 0)
+    {
+        if (arr->arraySize <= index)
+        {
+            fprintf(stderr, "Index out of range\n");
+            exit(1);
+        }
+        return ((char **)arr->address)[index];
+    }
+    if (strcmp(arr->arrayType, "long") == 0)
+    {
+        if (arr->arraySize <= index)
+        {
+            fprintf(stderr, "Index out of range\n");
+            exit(1);
+        }
+        return ((unsigned long long *)arr->address)[index];
+    }
+    if (strcmp(arr->arrayType, "int") == 0)
+    {
+        if (arr->arraySize <= index)
+        {
+            fprintf(stderr, "Index out of range\n");
+            exit(1);
+        }
+        return ((int *)arr->address)[index];
+    }
+    if (strcmp(arr->arrayType, "char") == 0)
+    {
+        if (arr->arraySize <= index)
+        {
+            fprintf(stderr, "Index out of range\n");
+            exit(1);
+        }
+        return ((char *)arr->address)[index];
+    }
+    fprintf(stderr, "Invalid ArrayList type\n");
+    exit(1);
+}
+
+void clear(Array_list *arr)
+{
+    if (arr->arrayLen == 0)
+    {
+        return;
+    }
+
+    free(arr->address);
+    size_t proposedNewSize = (size_t)ceil((float)arr->arrayLen / 2);
+    // at least 10 elements minimum
+    if (proposedNewSize < 10)
+    {
+        proposedNewSize = 10;
+    }
+    arr->arraySize = proposedNewSize;
+    arr->arrayLen = 0;
+}
+
 int main()
 {
     Array_list *myArr = createArray("char*", 5);
@@ -193,7 +329,8 @@ int main()
     val = "abc efg h";
     push(myArr, &val);
     printArray(myArr);
-    // free(myArr);
 }
+
+
 
 // Supported types (int long char char*)
