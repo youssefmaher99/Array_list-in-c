@@ -9,75 +9,41 @@ typedef struct array_list
     size_t arraySize;
     void *address;
     size_t arrayLen;
+    char typeSize;
 } Array_list;
 
 char parseSizeBasedOnType(char *arrayType)
 {
     if (strcmp(arrayType, "int") == 0)
     {
-        return 4;
+        return sizeof(int);
     }
 
     if (strcmp(arrayType, "long") == 0)
     {
-        return 8;
+        return sizeof(unsigned long long);
     }
 
     if (strcmp(arrayType, "char") == 0)
     {
-        return 1;
+        return sizeof(char);
     }
 
     if (strcmp(arrayType, "char*") == 0)
     {
-        return 8;
+        return sizeof(char *);
     }
 
     return 0;
 }
 
-void resizeArray(Array_list **arr)
+void resizeArray(Array_list *arr)
 {
-    void *new_cu_array = (void *)calloc((*arr)->arraySize * 2, parseSizeBasedOnType((*arr)->arrayType));
-
-    if (strcmp((*arr)->arrayType, "int") == 0)
-    {
-        for (size_t i = 0; i < (*arr)->arrayLen; i++)
-        {
-            // *((int *)new_cu_array + i) = *((int *)(*arr)->address + i);
-            ((int *)new_cu_array)[i] = ((int *)(*arr)->address)[i];
-        }
-    }
-
-    if (strcmp((*arr)->arrayType, "long") == 0)
-    {
-        for (size_t i = 0; i < (*arr)->arrayLen; i++)
-        {
-            // *((int *)new_cu_array + i) = *((int *)(*arr)->address + i);
-            ((unsigned long long *)new_cu_array)[i] = ((unsigned long long *)(*arr)->address)[i];
-        }
-    }
-
-    if (strcmp((*arr)->arrayType, "char") == 0)
-    {
-        for (size_t i = 0; i < (*arr)->arrayLen; i++)
-        {
-            // *((int *)new_cu_array + i) = *((int *)(*arr)->address + i);
-            ((char *)new_cu_array)[i] = ((char *)(*arr)->address)[i];
-        }
-    }
-
-    if (strcmp((*arr)->arrayType, "char*") == 0)
-    {
-        for (size_t i = 0; i < (*arr)->arrayLen; i++)
-        {
-            // *((int *)new_cu_array + i) = *((int *)(*arr)->address + i);
-            ((char **)new_cu_array)[i] = ((char **)(*arr)->address)[i];
-        }
-    }
-
-    free((*arr)->address);
-    (*arr)->address = new_cu_array;
+    void *new_cu_array = (void *)malloc(arr->typeSize * (arr->arraySize * 2));
+    memcpy(new_cu_array, arr, arr->arrayLen * arr->typeSize);
+    free(arr->address);
+    arr->address = new_cu_array;
+    arr->arraySize = arr->arraySize * 2;
 }
 
 Array_list *createArray(char *arrayType, int arraySize)
@@ -88,10 +54,10 @@ Array_list *createArray(char *arrayType, int arraySize)
         return NULL;
     }
     Array_list *myArray = (Array_list *)malloc(sizeof(Array_list));
-    void *array = (void *)calloc(arraySize, sizeBasedOnType);
-    myArray->address = array;
+    myArray->address = (void *)malloc(arraySize * sizeBasedOnType);
     myArray->arrayType = arrayType;
     myArray->arraySize = arraySize;
+    myArray->typeSize = sizeBasedOnType;
     myArray->arrayLen = 0;
     return myArray;
 }
@@ -103,85 +69,58 @@ void push(Array_list *arr, void *data)
     {
         // return a bigger array
         // create new Array_list with bigger size and copy all data to it
-        resizeArray(&arr);
+        resizeArray(arr);
         arr->arraySize = arr->arraySize * 2;
     }
 
-    if (strcmp(arr->arrayType, "int") == 0)
-    {
-        *((int *)arr->address + arr->arrayLen) = *(int *)data;
-    }
-    if (strcmp(arr->arrayType, "long") == 0)
-    {
-        *((unsigned long long *)arr->address + arr->arrayLen) = *(unsigned long long *)data;
-    }
-    if (strcmp(arr->arrayType, "char") == 0)
-    {
-        *((char *)arr->address + arr->arrayLen) = *(char *)data;
-    }
-    if (strcmp(arr->arrayType, "char*") == 0)
-    {
-        *((char **)arr->address + arr->arrayLen) = *(char **)data;
-    }
+    void *slot = arr->address + arr->arrayLen * arr->typeSize;
+    memcpy(slot, data, arr->typeSize);
     arr->arrayLen = arr->arrayLen + 1;
 }
 
 void printArray(Array_list *arr)
 {
+
+    if (arr->arrayLen == 0)
+    {
+        printf("{}\n");
+        return;
+    }
+
     if (strcmp(arr->arrayType, "int") == 0)
     {
-        if (arr->arrayLen == 0)
-        {
-            printf("{}\n");
-            return;
-        }
+
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%d\n", ((int *)arr->address)[i]);
         }
-        return;
     }
 
-    if (strcmp(arr->arrayType, "long") == 0)
+    else if (strcmp(arr->arrayType, "long") == 0)
     {
-        if (arr->arrayLen == 0)
-        {
-            printf("{}\n");
-            return;
-        }
+
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%llu\n", ((unsigned long long *)arr->address)[i]);
         }
-        return;
     }
 
-    if (strcmp(arr->arrayType, "char") == 0)
+    else if (strcmp(arr->arrayType, "char") == 0)
     {
-        if (arr->arrayLen == 0)
-        {
-            printf("{}\n");
-            return;
-        }
+
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%c\n", ((char *)arr->address)[i]);
         }
-        return;
     }
 
-    if (strcmp(arr->arrayType, "char*") == 0)
+    else if (strcmp(arr->arrayType, "char*") == 0)
     {
-        if (arr->arrayLen == 0)
-        {
-            printf("{}\n");
-            return;
-        }
+
         for (size_t i = 0; i < arr->arrayLen; i++)
         {
             printf("%s\n", ((char **)arr->address)[i]);
         }
-        return;
     }
 }
 
@@ -202,7 +141,7 @@ void pop(Array_list *arr)
     }
 }
 
-ptrdiff_t getIndexOf(Array_list *arr, size_t val)
+ptrdiff_t getIndexOf(Array_list *arr, void *val)
 {
 
     if (strcmp(arr->arrayType, "char*") == 0)
@@ -216,88 +155,24 @@ ptrdiff_t getIndexOf(Array_list *arr, size_t val)
         }
         return -1;
     }
-    if (strcmp(arr->arrayType, "long") == 0)
+    else
     {
+        void *ptr = arr->address;
         for (int i = 0; i < arr->arrayLen; i++)
         {
-            if (((unsigned long long *)arr->address)[i] == val)
+            if (memcmp(ptr, val, arr->typeSize) == 0)
             {
                 return i;
             }
+            ptr = ptr + arr->typeSize;
         }
-        return -1;
-    }
-    if (strcmp(arr->arrayType, "int") == 0)
-    {
-        for (int i = 0; i < arr->arrayLen; i++)
-        {
-            if (((int *)arr->address)[i] == val)
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-    if (strcmp(arr->arrayType, "char") == 0)
-    {
-        for (int i = 0; i < arr->arrayLen; i++)
-        {
-            if (strcmp(((char *)arr->address)[i], val) == 0)
-            {
-                return i;
-            }
-        }
-        return -1;
     }
     return -1;
 }
 
-ptrdiff_t getElementByIndex(Array_list *arr, ptrdiff_t index)
+void *getElementByIndex(Array_list *arr, size_t index)
 {
-    if (index == -1)
-    {
-        fprintf(stderr, "Invalid index\n");
-        exit(1);
-    }
-
-    if (strcmp(arr->arrayType, "char*") == 0)
-    {
-        if (arr->arraySize <= index)
-        {
-            fprintf(stderr, "Index out of range\n");
-            exit(1);
-        }
-        return ((char **)arr->address)[index];
-    }
-    if (strcmp(arr->arrayType, "long") == 0)
-    {
-        if (arr->arraySize <= index)
-        {
-            fprintf(stderr, "Index out of range\n");
-            exit(1);
-        }
-        return ((unsigned long long *)arr->address)[index];
-    }
-    if (strcmp(arr->arrayType, "int") == 0)
-    {
-        if (arr->arraySize <= index)
-        {
-            fprintf(stderr, "Index out of range\n");
-            exit(1);
-        }
-        return ((int *)arr->address)[index];
-    }
-    if (strcmp(arr->arrayType, "char") == 0)
-    {
-        if (arr->arraySize <= index)
-        {
-            fprintf(stderr, "Index out of range\n");
-            exit(1);
-        }
-        return ((char *)arr->address)[index];
-    }
-    fprintf(stderr, "Invalid ArrayList type\n");
-    exit(1);
+    return arr->address + (arr->typeSize * index);
 }
 
 void clear(Array_list *arr)
@@ -328,7 +203,7 @@ int main()
 
     push(myArr, &val);
     val = "abc efg h";
-    
+
     push(myArr, &val);
     printArray(myArr);
 }
