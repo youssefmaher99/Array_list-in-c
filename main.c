@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 typedef struct array_list
 {
@@ -38,12 +39,12 @@ char parseSizeBasedOnType(char *arrayType)
 }
 
 void resizeArray(Array_list *arr)
-{
-    void *new_cu_array = (void *)malloc(arr->typeSize * (arr->arraySize * 2));
-    memcpy(new_cu_array, arr, arr->arrayLen * arr->typeSize);
+{ // << 2  is equiv to *2 but faster
+    void *new_cu_array = (void *)malloc(arr->typeSize * (arr->arraySize << 2));
+    memcpy(new_cu_array, arr->address, arr->arrayLen * arr->typeSize);
     free(arr->address);
     arr->address = new_cu_array;
-    arr->arraySize = arr->arraySize * 2;
+    arr->arraySize = arr->arraySize << 2;
 }
 
 Array_list *createArray(char *arrayType, int arraySize)
@@ -70,7 +71,7 @@ void push(Array_list *arr, void *data)
         // return a bigger array
         // create new Array_list with bigger size and copy all data to it
         resizeArray(arr);
-        arr->arraySize = arr->arraySize * 2;
+        arr->arraySize = arr->arraySize << 2;
     }
 
     void *slot = arr->address + arr->arrayLen * arr->typeSize;
@@ -175,6 +176,11 @@ void *getElementByIndex(Array_list *arr, size_t index)
     return arr->address + (arr->typeSize * index);
 }
 
+size_t getLen(Array_list *arr)
+{
+    return arr->arrayLen;
+}
+
 void clear(Array_list *arr)
 {
     if (arr->arrayLen == 0)
@@ -193,6 +199,41 @@ void clear(Array_list *arr)
     arr->arrayLen = 0;
 }
 
+bool elementExist(Array_list *arr, size_t index)
+{
+    if (arr->arrayLen <= index)
+    {
+        return false;
+    }
+    return true;
+}
+
+void set(Array_list *arr, size_t index, void *newVal)
+{
+
+    if (!elementExist(arr, index))
+    {
+        return;
+    }
+    memcpy(arr->address + (arr->typeSize * index), newVal, arr->typeSize);
+}
+
+void removeElmByIndex(Array_list *arr, size_t index)
+{
+
+    if (!elementExist(arr, index))
+    {
+        return;
+    }
+
+    void *new_arr = (void *)malloc(arr->typeSize * arr->arraySize);
+    memcpy(new_arr, arr->address, arr->typeSize * index);
+    memcpy(new_arr + (arr->typeSize * index), arr->address + (arr->typeSize * (index + 1)), (arr->arrayLen - 1 - (index)) * arr->typeSize);
+    free(arr->address);
+    arr->address = new_arr;
+    arr->arrayLen--;
+}
+
 int main()
 {
     Array_list *myArr = createArray("char*", 5);
@@ -206,4 +247,21 @@ int main()
 
     push(myArr, &val);
     printArray(myArr);
+
+    fprintf(stderr, "index of 'abc efg h'? %d\n", getIndexOf(myArr, "abc efg h"));
+    fprintf(stderr, "index of 'hello world'? %d\n", getIndexOf(myArr, "hello world"));
+    fprintf(stderr, "index of 'blah'? %d\n", getIndexOf(myArr, "blah"));
+    fprintf(stderr, "index of 'zewww'? %d\n", getIndexOf(myArr, "zewwww"));
+
+    char *newVal = "duffy duck";
+    set(myArr, 3, &newVal);
+
+    val = "wwwwww";
+    push(myArr, &val);
+
+    val = "ttttttt";
+    push(myArr, &val);
+    removeElmByIndex(myArr, 2);
+    printArray(myArr);
+
 }
