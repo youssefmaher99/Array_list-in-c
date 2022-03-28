@@ -226,9 +226,26 @@ void removeElmByIndex(Array_list *arr, size_t index)
         return;
     }
 
+    // remove from buttom
+    if ((arr->arrayLen - 1) == index)
+    {
+        pop(arr);
+        return;
+    }
+
+    // top and middle
     void *new_arr = (void *)malloc(arr->typeSize * arr->arraySize);
-    memcpy(new_arr, arr->address, arr->typeSize * index);
-    memcpy(new_arr + (arr->typeSize * index), arr->address + (arr->typeSize * (index + 1)), (arr->arrayLen - 1 - (index)) * arr->typeSize);
+    if (index == 0)
+    {
+        memcpy(new_arr, arr->address + arr->typeSize, arr->typeSize * arr->arrayLen - 1);
+    }
+    else
+    {
+        // middle and elements are greater than 3 elements
+        memcpy(new_arr, arr->address, arr->typeSize * index);
+        memcpy(new_arr + (arr->typeSize * index), arr->address + (arr->typeSize * (index + 1)), (arr->arrayLen - 1 - (index)) * arr->typeSize);
+    }
+
     free(arr->address);
     arr->address = new_arr;
     arr->arrayLen--;
@@ -238,30 +255,28 @@ int main()
 {
     Array_list *myArr = createArray("char*", 5);
     char *val = "hello world";
-
     push(myArr, &val);
+
     val = "test test";
-
     push(myArr, &val);
+
     val = "abc efg h";
-
     push(myArr, &val);
-    printArray(myArr);
 
-    fprintf(stderr, "index of 'abc efg h'? %d\n", getIndexOf(myArr, "abc efg h"));
-    fprintf(stderr, "index of 'hello world'? %d\n", getIndexOf(myArr, "hello world"));
-    fprintf(stderr, "index of 'blah'? %d\n", getIndexOf(myArr, "blah"));
-    fprintf(stderr, "index of 'zewww'? %d\n", getIndexOf(myArr, "zewwww"));
+    // fprintf(stderr, "index of 'abc efg h'? %d\n", getIndexOf(myArr, "abc efg h"));
+    // fprintf(stderr, "index of 'hello world'? %d\n", getIndexOf(myArr, "hello world"));
+    // fprintf(stderr, "index of 'blah'? %d\n", getIndexOf(myArr, "blah"));
+    // fprintf(stderr, "index of 'zewww'? %d\n", getIndexOf(myArr, "zewwww"));
 
     char *newVal = "duffy duck";
-    set(myArr, 3, &newVal);
+    set(myArr, 2, &newVal);
 
     val = "wwwwww";
     push(myArr, &val);
 
     val = "ttttttt";
     push(myArr, &val);
-    removeElmByIndex(myArr, 2);
-    printArray(myArr);
 
+    removeElmByIndex(myArr, 0);
+    printArray(myArr);
 }
