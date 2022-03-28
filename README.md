@@ -10,5 +10,7 @@ Simple Array_list implementation in C.<br/>
 * pop
 * clear
 * print
+* set
+* remove element by index
 * get element by index
 * get index of value
