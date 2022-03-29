@@ -233,13 +233,14 @@ void removeElmByIndex(Array_list *arr, size_t index)
         return;
     }
 
-    // top and middle
     void *new_arr = (void *)malloc(arr->typeSize * arr->arraySize);
+
+    // remove from top
     if (index == 0)
     {
         memcpy(new_arr, arr->address + arr->typeSize, arr->typeSize * arr->arrayLen - 1);
     }
-    else
+    else // remove from middle
     {
         // middle and elements are greater than 3 elements
         memcpy(new_arr, arr->address, arr->typeSize * index);
@@ -253,14 +254,14 @@ void removeElmByIndex(Array_list *arr, size_t index)
 
 int main()
 {
-    Array_list *myArr = createArray("char*", 5);
-    char *val = "hello world";
+    Array_list *myArr = createArray("int", 5);
+    int val = 11;
     push(myArr, &val);
 
-    val = "test test";
+    val = 22;
     push(myArr, &val);
 
-    val = "abc efg h";
+    val = 33;
     push(myArr, &val);
 
     // fprintf(stderr, "index of 'abc efg h'? %d\n", getIndexOf(myArr, "abc efg h"));
@@ -268,15 +269,17 @@ int main()
     // fprintf(stderr, "index of 'blah'? %d\n", getIndexOf(myArr, "blah"));
     // fprintf(stderr, "index of 'zewww'? %d\n", getIndexOf(myArr, "zewwww"));
 
-    char *newVal = "duffy duck";
+    int newVal = 999;
     set(myArr, 2, &newVal);
 
-    val = "wwwwww";
+    val = 44;
     push(myArr, &val);
 
-    val = "ttttttt";
+    val = 55;
     push(myArr, &val);
 
+    printArray(myArr);
+    printf("---------------\n");
     removeElmByIndex(myArr, 0);
     printArray(myArr);
 }
