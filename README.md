@@ -13,4 +13,4 @@ Simple Array_list implementation in C.<br/>
 * set
 * remove element by index
 * get element by index
-* get index of value
+* get index of element
